@@ -5018,3 +5018,19 @@ msgstr "Șterge rezultatele căutărilor salvate, astfel încât următoarea că
 msgctxt "#91070"
 msgid "Search cache cleared"
 msgstr "Memoria cache a căutărilor a fost golită"
+
+msgctxt "#91071"
+msgid "Show bitrate on pause"
+msgstr "Afișează bitrate-ul la pauză"
+
+msgctxt "#91072"
+msgid "While playback is paused, show the average video bitrate and stream details on screen."
+msgstr "Când redarea este în pauză, afișează pe ecran bitrate-ul mediu al videoclipului și detaliile fluxului."
+
+msgctxt "#91073"
+msgid "Bitrate"
+msgstr "Bitrate"
+
+msgctxt "#91074"
+msgid "Audio"
+msgstr "Audio"
