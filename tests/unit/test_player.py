@@ -1621,6 +1621,55 @@ def test_plugin_start_failure_ignored_while_resolution_pending(monkeypatch, pend
     )
 
 
+def test_plugin_start_failure_ignored_for_a_slow_torrent_without_any_ceiling(monkeypatch):
+    player_module = _player_module(monkeypatch)
+    test_player = _bare_player(player_module)
+    test_player.url = "plugin://plugin.video.jacktorr/play_magnet?magnet=x"
+    monkeypatch.setattr(
+        player_module,
+        "get_visibility",
+        lambda cond: cond == "Window.IsVisible(progressdialog)",
+    )
+
+    # A cold torrent can buffer for minutes: the dialog is the client saying it works.
+    assert test_player._plugin_start_failure_detected(10 * 60 * 1000) is False
+
+
+def test_plugin_start_failure_ignored_while_kodi_is_caching(monkeypatch):
+    player_module = _player_module(monkeypatch)
+    test_player = _bare_player(player_module)
+    test_player.url = "plugin://plugin.video.jacktorr/play_magnet?magnet=x"
+    monkeypatch.setattr(player_module, "get_visibility", lambda cond: cond == "Player.Caching")
+
+    assert test_player._plugin_start_failure_detected(10 * 60 * 1000) is False
+
+
+def test_plugin_start_failure_ignored_during_media_grace(monkeypatch):
+    player_module = _player_module(monkeypatch)
+    test_player = _bare_player(player_module)
+    test_player.url = "plugin://plugin.video.jacktorr/play_magnet?magnet=x"
+    monkeypatch.setattr(player_module, "get_visibility", lambda cond: cond == "Player.HasMedia")
+
+    grace_deadline = (
+        player_module.PLUGIN_START_FAILURE_TIMEOUT_MS + player_module.PLUGIN_START_MEDIA_GRACE_MS
+    )
+
+    assert test_player._plugin_start_failure_detected(grace_deadline - 1000) is False
+
+
+def test_plugin_start_failure_detected_when_media_never_starts(monkeypatch):
+    player_module = _player_module(monkeypatch)
+    test_player = _bare_player(player_module)
+    test_player.url = "plugin://plugin.video.jacktorr/play_magnet?magnet=x"
+    monkeypatch.setattr(player_module, "get_visibility", lambda cond: cond == "Player.HasMedia")
+
+    grace_deadline = (
+        player_module.PLUGIN_START_FAILURE_TIMEOUT_MS + player_module.PLUGIN_START_MEDIA_GRACE_MS
+    )
+
+    assert test_player._plugin_start_failure_detected(grace_deadline + 1000) is True
+
+
 def test_plugin_start_failure_detected_when_resolution_gave_up(monkeypatch):
     player_module = _player_module(monkeypatch)
     test_player = _bare_player(player_module)
