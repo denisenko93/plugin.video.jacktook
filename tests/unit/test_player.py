@@ -1599,19 +1599,20 @@ def test_plugin_start_failure_ignored_within_timeout(monkeypatch):
 
 
 @pytest.mark.parametrize(
-    "pending_condition",
+    "dialog_condition",
     [
         "Window.IsVisible(busydialog)",
-        # Jacktorr buffers behind a DialogProgress for well over the timeout.
+        "Window.IsVisible(busydialognocancel)",
+        # Jacktorr buffers behind a DialogProgress.
         "Window.IsVisible(progressdialog)",
-        "Player.HasMedia",
+        "Window.IsVisible(extendedprogressdialog)",
     ],
 )
-def test_plugin_start_failure_ignored_while_resolution_pending(monkeypatch, pending_condition):
+def test_plugin_start_failure_ignored_while_client_dialog_visible(monkeypatch, dialog_condition):
     player_module = _player_module(monkeypatch)
     test_player = _bare_player(player_module)
     test_player.url = "plugin://plugin.video.jacktorr/play_magnet?magnet=x"
-    monkeypatch.setattr(player_module, "get_visibility", lambda cond: cond == pending_condition)
+    monkeypatch.setattr(player_module, "get_visibility", lambda cond: cond == dialog_condition)
 
     assert (
         test_player._plugin_start_failure_detected(
@@ -1796,7 +1797,9 @@ def test_update_pause_overlay_shows_on_pause_and_hides_on_resume(monkeypatch):
     test_player.total_time = 7200
     monkeypatch.setattr(player_module, "get_current_streams", lambda: ({}, {}))
     monkeypatch.setattr(
-        player_module, "build_overlay_lines", lambda size, duration, v, a: (f"{size}/{duration}", "")
+        player_module,
+        "build_overlay_lines",
+        lambda size, duration, v, a: (f"{size}/{duration}", ""),
     )
 
     monkeypatch.setattr(player_module, "get_visibility", lambda cond: cond == "Player.Paused")
