@@ -14,6 +14,7 @@ from lib.domain.torrent import TorrentStream
 from lib.utils.general.processors import PreProcessBuilder, cyrillic_episode_coverage
 
 
+<<<<<<< HEAD
 def _kept_titles(
     titles: List[str], episode_num: int, season_num: int = 1, season_packs=False
 ) -> List[str]:
@@ -22,6 +23,14 @@ def _kept_titles(
         get_setting.side_effect = lambda key, default=None: {
             "include_season_packs": season_packs
         }.get(key, default)
+=======
+def _kept_titles(titles: List[str], episode_num: int, season_num: int = 1, season_packs=False) -> List[str]:
+    builder = PreProcessBuilder([TorrentStream(title=title) for title in titles])
+    with patch("lib.utils.general.processors.get_setting") as get_setting:
+        get_setting.side_effect = lambda key, default=None: {"include_season_packs": season_packs}.get(
+            key, default
+        )
+>>>>>>> fork/fix-cyrillic-episode-filter
         builder.filter_sources("", episode_num, season_num)
     return [result.title for result in builder.results]
 
@@ -72,6 +81,7 @@ def test_whole_season_pack_follows_the_season_pack_setting():
     assert cyrillic_episode_coverage(title, 1, 2) == "season"
     assert _kept_titles([title], episode_num=2) == []
     assert _kept_titles([title], episode_num=2, season_packs=True) == [title]
+<<<<<<< HEAD
 
 
 def test_season_pack_and_episode_range_are_not_duplicated():
@@ -122,3 +132,5 @@ def test_parenthesized_season_marker_is_detected():
     title = "Tulsa King (S01) 1080p"
 
     assert _kept_titles([title], episode_num=2, season_packs=True) == [title]
+=======
+>>>>>>> fork/fix-cyrillic-episode-filter
